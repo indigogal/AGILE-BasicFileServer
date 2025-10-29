@@ -1,10 +1,11 @@
-import json
 from os import environ
+import os
 from urllib.parse import quote_plus, urlencode
 
 from authlib.integrations.flask_client import OAuth
+from werkzeug.utils import secure_filename
 from dotenv import find_dotenv, load_dotenv
-from flask import Flask, redirect, render_template, session, url_for
+from flask import Flask, redirect, render_template, send_file, session, url_for, request
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -27,7 +28,12 @@ oauth.register(
 
 @app.route('/global')
 def globalSite() -> str:
-    return render_template("global.html")
+    files = [f for f in os.listdir('storage') if os.path.isfile(os.path.join('storage',f))]
+    return render_template("global.html",files=files)
+
+@app.route('/aboutus')
+def aboutUs() -> str:
+    return render_template("aboutus.html")
 
 @app.route('/')
 def main() -> str :
@@ -59,6 +65,19 @@ def logout():
             quote_via=quote_plus,
         )
     )
+
+@app.route("/download/<filename>")
+def download(filename: str):
+    return send_file(os.path.join("./storage",filename),as_attachment=True)
+
+@app.route("/upload",methods=["POST"])
+def upload():
+    if 'file' in request.files:
+        file = request.files['file']
+        if file.filename:
+         file.filename = secure_filename(file.filename)
+         file.save(f'./storage/{file.filename}')
+    return redirect(url_for('globalSite'))
 
 if __name__ == "__main__":
     app.run(debug=True,host="localhost",port=environ.get("PORT",1738))

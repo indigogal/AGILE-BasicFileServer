@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<!--
+The variables needed to initialize this template are:
+files - list of files inside the storage/ dir
+-->
 <html lang="en">
 
 <head>
@@ -6,20 +10,78 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BFS</title>
   <link href="{{ url_for('static', filename='css/pico.min.css') }}" rel="stylesheet">
+
+  <style>
+    h3 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .download-col {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .download-col button {
+      width: auto;
+    }
+  </style>
 </head>
 
 <body>
-  <nav>
+  <main class="container-fluid">
+    <nav>
+      <ul>
+        <li><strong>File Bucket</strong></li>
+      </ul>
+      <ul>
+        <li><a href="#" class="contrast">Logout</a></li>
+        <li><button id="modal-open" type="button" class="secondary">Upload</button></li>
+      </ul>
+    </nav>
+    <dialog id="upload-modal">
+      <article>
+        <header>
+          <b>Upload a file</b>
+          <button rel="prev" type="button" id="modal-close"></button>
+        </header>
+        <form id="upload-form" method="POST" action="/upload" enctype="multipart/form-data">
+          <input type="file" name="file">
+        </form>
+        <footer>
+          <button class="contrast" type="submit" method="post" form="upload-form">Upload</button>
+        </footer>
+      </article>
+    </dialog>
     <ul>
-      <li><strong>Basic File Server</strong></li>
+      {% for file in files %}
+      <li>
+        <article>
+          <div class="grid">
+            <div class="col">
+              <h3>{{file}}</h3>
+            </div>
+            <div class="col-2 download-col">
+              <a href="{{url_for('download',filename=file)}}">
+                <button class="secondary">⤓</button>
+              </a>
+            </div>
+          </div>
+        </article>
+      </li>
+      {% endfor %}
     </ul>
-    <ul>
-      <li><a href="#">Logout</a></li>
-    </ul>
-  </nav>
-  <div>
-
-  </div>
+  </main>
+  <script>
+    document.getElementById('modal-open').addEventListener('click', function () {
+      document.getElementById('upload-modal').showModal();
+    });
+    document.getElementById('modal-close').addEventListener('click', function () {
+      document.getElementById('upload-modal').close();
+    });
+  </script>
 </body>
 
 </html>
